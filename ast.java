@@ -140,6 +140,10 @@ class ProgramNode extends ASTnode {
         myDeclList.unparse(p, indent);
     }
 
+    public void checkType() {
+		myDeclList.checkType();
+    }
+
     // 1 child
     private DeclListNode myDeclList;
 }
@@ -185,6 +189,13 @@ class DeclListNode extends ASTnode {
         }
     }
 
+    public void checkType() {
+		// iterate through the elements and check each of their types
+		for (DeclNode node : myDecls) {
+			node.checkType();
+		}
+	}
+
     // list of children (DeclNodes)
     private List<DeclNode> myDecls;
 }
@@ -210,6 +221,12 @@ class StmtListNode extends ASTnode {
             it.next().unparse(p, indent);
         } 
     }
+
+	public void checkType() {
+		for (StmtNode node : myStmts) {
+			node.checkType();
+		}
+	}
 
     // list of children (StmtNodes)
     private List<StmtNode> myStmts;
@@ -310,6 +327,11 @@ class FctnBodyNode extends ASTnode {
         myDeclList.unparse(p, indent);
         myStmtList.unparse(p, indent);
     }
+
+	public void checkType() {
+		myDeclList.checkType();
+		myStmtList.checkType();
+	}
 
     // 2 children
     private DeclListNode myDeclList;
