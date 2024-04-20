@@ -855,7 +855,14 @@ class PostIncStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+        Type type1 = myExp.checkType();
+	if (type1.isErrorType()) return new ErrorType();
+	if (!type1.isIntegerType()) {
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Arithmetic operator used with non-integer operand");
+	    return new ErrorType();
+	} else { // no error
+	    return new IntegerType();
+	}
     }
 
     // 1 child
@@ -882,7 +889,14 @@ class PostDecStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp.checkType();
+        if (type1.isErrorType()) return new ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else { // no error
+            return new IntegerType();
+        }
     }
 
     // 1 child
@@ -1659,8 +1673,19 @@ class PlusNode extends BinaryExpNode {
         p.print(")");
     }
 
-	public Type checkType() {
-
+    public Type checkType() {
+	Type type1 = myExp1.checkType();
+	Type type2 = myExp2.checkType();
+	if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+	if (!type1.isIntegerType()) {
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+	} else if (!type2.isIntegerType()) {
+	    ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+	} else { // no errors
+	    return new IntegerType();
+	}
     }
 }
 
@@ -1678,7 +1703,18 @@ class MinusNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+    	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else { // no errors
+            return new IntegerType();
+        }
     }
 }
 
@@ -1695,8 +1731,19 @@ class TimesNode extends BinaryExpNode {
         p.print(")");
     }
 
-	public Type checkType() {
-
+    public Type checkType() {
+    	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else { // no errors
+            return new IntegerType();
+        }
     }
 }
 
@@ -1714,7 +1761,18 @@ class DivideNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+    	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+        } else { // no errors
+            return new IntegerType();
+        }
     }
 }
 
@@ -1732,7 +1790,6 @@ class EqualsNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
     }
 }
 
@@ -1750,7 +1807,6 @@ class NotEqualsNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
     }
 }
 
@@ -1768,7 +1824,16 @@ class GreaterNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else { // no errors
+            return new LogicalType();
+        }
     }
 }
 
@@ -1786,7 +1851,16 @@ class GreaterEqNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else { // no errors
+            return new LogicalType();
+        }
     }
 }
 
@@ -1804,7 +1878,16 @@ class LessNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else { // no errors
+            return new LogicalType();
+        }
     }
 }
 
@@ -1822,7 +1905,16 @@ class LessEqNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (!type1.isIntegerType()) {
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+        } else { // no errors
+            return new LogicalType();
+        }
     }
 }
 
