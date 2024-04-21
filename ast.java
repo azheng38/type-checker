@@ -828,7 +828,7 @@ class AssignStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+		return myAssign.checkType();	
     }
 
     // 1 child
@@ -943,8 +943,28 @@ class IfStmtNode extends StmtNode {
         p.println("]");  
     }
 
-    public Type checkType() {
+    public void checkType() {
+		Type type = myExp.checkType();
+		
+		// check expression part
+		if (type.isErrorType()) {
+			// is an error, do not print another message
+			// do not do anything
+		}
+		else if (!type.isLogicalType()) {
+			// if not logical type then throw error; else continue
+			ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
+		}
 
+		// checkType on myDeclList
+		for (DeclListNode node : myDeclList) {
+			node.checkType();
+		}
+
+		// checkType on myStmtList
+		for (StmtListNode node : myStmtList) {
+			node.checkType();
+		}
     }
 
     // 3 children
@@ -1016,8 +1036,38 @@ class IfElseStmtNode extends StmtNode {
         p.println("]"); 
     }
 
-    public Type checkType() {
+    public void checkType() {
+		Type type = myExp.checkType();
 
+        // check expression part
+        if (type.isErrorType()) {
+            // is an error, do not print another message
+			// do nothing
+		}
+        else if (!type.isLogicalType()) {
+            // if not logical type then throw error; else continue
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
+        }
+
+		// checkType on myThenDeclList
+        for (DeclListNode node : myThenDeclList) {
+            node.checkType();
+        }
+
+        // checkType on myThenStmtList
+        for (StmtListNode node : myThenStmtList) {
+            node.checkType();
+        }
+
+		// checkType on myElseDeclList
+        for (DeclListNode node : myElseDeclList) {
+            node.checkType();
+        }
+
+        // checkType on myElseStmtList
+        for (StmtListNode node : myElseStmtList) {
+            node.checkType();
+        }
     }
 
     // 5 children
@@ -1068,8 +1118,28 @@ class WhileStmtNode extends StmtNode {
         p.println("]");
     }
 
-    public Type checkType() {
+    public void checkType() {
+		Type type = myExp.checkType();
 
+        // check expression part
+        if (type.isErrorType()) {
+            // is an error, do not print another message
+			// do nothing
+		}
+        else if (!type.isLogicalType()) {
+            // if not logical type then throw error; else continue
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
+        }
+
+		// checkType on myDeclList
+        for (DeclListNode node : myDeclList) {
+            node.checkType();
+        }
+
+        // checkType on myStmtList
+        for (StmtListNode node : myStmtList) {
+            node.checkType();
+        }
     }
 
     // 3 children
@@ -1204,6 +1274,11 @@ abstract class ExpNode extends ASTnode {
      * Default version for nodes with no names
      ***/
     public void nameAnalysis(SymTable symTab) { }
+
+	public int charNum() { }
+
+    public int lineNum() { }
+
 }
 
 class TrueNode extends ExpNode {
@@ -1217,7 +1292,15 @@ class TrueNode extends ExpNode {
     }
 
     public Type checkType() {
+		return new LogicalType();
+    }
 
+	public int charNum() {
+        return myCharNum;
+    }
+
+    public int lineNum() {
+        return myLineNum;
     }
 
     private int myLineNum;
@@ -1235,7 +1318,15 @@ class FalseNode extends ExpNode {
     }
 
     public Type checkType() {
+		return new LogicalType();
+    }
 
+	public int charNum() {
+        return myCharNum;
+    }
+
+    public int lineNum() {
+        return myLineNum;
     }
 
     private int myLineNum;
@@ -1306,7 +1397,7 @@ class IdNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return sym().getType();
     }
 
     public void unparse(PrintWriter p, int indent) {
@@ -1334,7 +1425,15 @@ class IntLitNode extends ExpNode {
     }
 
     public Type checkType() {
+		return new IntegerType();
+    }
 
+    public int charNum() {
+        return myCharNum;
+    }
+
+    public int lineNum() {
+        return myLineNum;
     }
 
     private int myLineNum;
@@ -1354,7 +1453,15 @@ class StrLitNode extends ExpNode {
     }
 
     public Type checkType() {
+		return new StringType();
+    }
 
+    public int charNum() {
+        return myCharNum;
+    }
+
+    public int lineNum() {
+        return myLineNum;
     }
 
     private int myLineNum;
@@ -1534,7 +1641,45 @@ class AssignExpNode extends ExpNode {
     }
 
     public Type checkType() {
+		Type leftType = lhs.checkType();
+		Type expType = exp.checkType();
+		
+		// if either are an error; stop and just return error
+		if (leftType.isErrorType() || expType.isErrorType())
+			return new ErrorType();
+		
+		// check if lhs and expType are either both ints or both logical
+		if (leftType.isLogicalType() && expType.isLogicalType()) {
+			return new LogicalType();
+		} else if (leftType.isIntegerType() && expType.isIntegerType()) {
+			return new IntegerType();
+		} else if (!leftType.equals(expType)) {
+			// check if mismatch
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Mismatched type");
+			return new ErrorType();
+		} else if (leftType.isFctnType() && expType.isFctnType()) {
+			// check if both are functions
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to function name");
+			return new ErrorType();
+		} else if (leftType.isTupleType() && expType.isTupleType()) {
+			// check if both are tuples
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple name");
+			return new ErrorType();
+		} else if (leftType.isTupleDefType() && expType.isTupleDefType()) {
+			// check if both are tuple variables
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple variable");
+			return new ErrorType();
+		} else {
+			System.out.println("Something very wrong happened");
+		}
+    }
 
+	public int charNum() {
+        return myLhs.charNum();
+    }
+
+    public int lineNum() {
+        return myLhs.lineNum();
     }
 
     // 2 children
@@ -1610,6 +1755,14 @@ class CallExpNode extends ExpNode {
         p.print(")");   
     }
 
+	public int charNum() {
+        return myId.charNum();
+    }
+
+    public int lineNum() {
+        return myId.charNum();
+    }
+
     // 2 children
     private IdNode myId;
     private ExpListNode myExpList;  // possibly null
@@ -1626,6 +1779,14 @@ abstract class UnaryExpNode extends ExpNode {
      ***/
     public void nameAnalysis(SymTable symTab) {
         myExp.nameAnalysis(symTab);
+    }
+
+    public int charNum() {
+        return myExp.charNum();
+    }
+
+    public int lineNum() {
+        return myExp.lineNum();
     }
     
     // 1 child
@@ -1646,6 +1807,14 @@ abstract class BinaryExpNode extends ExpNode {
     public void nameAnalysis(SymTable symTab) {
         myExp1.nameAnalysis(symTab);
         myExp2.nameAnalysis(symTab);
+    }
+
+	public int charNum() {
+        return myExp1.charNum();
+    }
+
+    public int lineNum() {
+        return myExp1.lineNum();
     }
     
     // 2 children
@@ -1669,7 +1838,26 @@ class NotNode extends UnaryExpNode {
     }
 
 	public Type checkType() {
+		Type type = exp.checkType();
 
+		if (type.isLogicalType()) {
+			return new LogicalType();
+		} else if (type.isErrorType()) {
+			return new ErrorType();
+		}
+		else {
+			// type is not logical/error, print "Logical operator used with non-logical operand"
+			ErrMsg.fatal(exp.lineNum(), exp.charNum(), "Logical operator used with non-logical operand");
+			return new ErrorType();
+		}
+    }
+
+	public int charNum() {
+        return exp.charNum();
+    }
+
+    public int lineNum() {
+        return exp.lineNum();
     }
 }
 
@@ -1686,6 +1874,14 @@ class UnaryMinusNode extends UnaryExpNode {
 
     public Type checkType() {
 
+    }
+
+	public int charNum() {
+        return exp.charNum();
+    }
+
+    public int lineNum() {
+        return exp.lineNum();
     }
 }
 
@@ -1720,6 +1916,14 @@ class PlusNode extends BinaryExpNode {
 	    return new IntegerType();
 	}
     }
+
+	public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
+    }
 }
 
 class MinusNode extends BinaryExpNode {
@@ -1748,6 +1952,14 @@ class MinusNode extends BinaryExpNode {
         } else { // no errors
             return new IntegerType();
         }
+    }
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
 
@@ -1778,6 +1990,14 @@ class TimesNode extends BinaryExpNode {
             return new IntegerType();
         }
     }
+	
+	public int charNum() {
+        return exp.charNum();
+    }
+
+    public int lineNum() {
+        return exp.lineNum();
+    }
 }
 
 class DivideNode extends BinaryExpNode {
@@ -1806,6 +2026,14 @@ class DivideNode extends BinaryExpNode {
         } else { // no errors
             return new IntegerType();
         }
+    }
+
+	public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
 
@@ -1851,6 +2079,14 @@ class EqualsNode extends BinaryExpNode {
 	    return new Type();
 	}
     }
+
+	public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
+    }
 }
 
 class NotEqualsNode extends BinaryExpNode {
@@ -1895,6 +2131,14 @@ class NotEqualsNode extends BinaryExpNode {
             return new Type();
         }
     }
+
+	public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
+    }
 }
 
 class GreaterNode extends BinaryExpNode {
@@ -1921,6 +2165,14 @@ class GreaterNode extends BinaryExpNode {
         } else { // no errors
             return new LogicalType();
         }
+    }
+	
+	public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
 
@@ -1949,6 +2201,14 @@ class GreaterEqNode extends BinaryExpNode {
             return new LogicalType();
         }
     }
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
+    }
 }
 
 class LessNode extends BinaryExpNode {
@@ -1975,6 +2235,14 @@ class LessNode extends BinaryExpNode {
         } else { // no errors
             return new LogicalType();
         }
+    }
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
 
@@ -2003,6 +2271,14 @@ class LessEqNode extends BinaryExpNode {
             return new LogicalType();
         }
     }
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
+    }
 }
 
 
@@ -2020,7 +2296,31 @@ class AndNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-		
+		Type type1 = exp1.checkType();
+		Type type2 = exp2.checkType();
+
+        if (type1.isLogicalType() && type2.isLogicalType()) {
+            return new LogicalType();
+        } else if (type1.isErrorType() || type2.isErrorType()) {
+            return new ErrorType();
+        }
+        else if (!type1.isLogicalType()) {
+            // type1 is not logical, "Logical operator used with non-logical operand"
+            ErrMsg.fatal(exp1.lineNum(), exp1.charNum(), "Logical operator used with non-logical operand");
+            return new ErrorType();
+        } else {
+			// type2 is not logical, "Logical operator used with non-logical operand"
+            ErrMsg.fatal(exp2.lineNum(), exp2.charNum(), "Logical operator used with non-logical operand");
+            return new ErrorType();
+		}
+	}
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
 
@@ -2033,11 +2333,35 @@ class OrNode extends BinaryExpNode {
         p.print("(");
         myExp1.unparse(p, 0);
         p.print(" | ");
-        myExp2.unparse(p, 0);
+        m/yExp2.unparse(p, 0);
         p.print(")");
     }
 
     public Type checkType() {
+        Type type1 = exp1.checkType();
+        Type type2 = exp2.checkType();
 
+        if (type1.isLogicalType() && type2.isLogicalType()) {
+            return new LogicalType();
+        } else if (type1.isErrorType() || type2.isErrorType()) {
+            return new ErrorType();
+        }
+        else if (!type1.isLogicalType()) {
+            // type1 is not logical, "Logical operator used with non-logical operand"
+            ErrMsg.fatal(exp1.lineNum(), exp1.charNum(), "Logical operator used with non-logical operand");
+            return new ErrorType();
+        } else {
+            // type2 is not logical, "Logical operator used with non-logical operand"
+            ErrMsg.fatal(exp2.lineNum(), exp2.charNum(), "Logical operator used with non-logical operand");
+            return new ErrorType();
+        }
+    }
+
+    public int charNum() {
+        return exp1.charNum();
+    }
+
+    public int lineNum() {
+        return exp1.lineNum();
     }
 }
