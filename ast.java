@@ -828,7 +828,7 @@ class AssignStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+		return myAssign.checkType();	
     }
 
     // 1 child
@@ -943,18 +943,17 @@ class IfStmtNode extends StmtNode {
         p.println("]");  
     }
 
-    public Type checkType() {
+    public void checkType() {
 		Type type = myExp.checkType();
 		
 		// check expression part
 		if (type.isErrorType()) {
 			// is an error, do not print another message
-			return new ErrorType();
+			// do not do anything
 		}
 		else if (!type.isLogicalType()) {
 			// if not logical type then throw error; else continue
-			ErrMsg.fatal(myId.myLineNum, myId.myCharNum, "Non-logical expression used in if condition");
-			return new ErrorType();
+			ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
 		}
 
 		// checkType on myDeclList
@@ -1037,18 +1036,17 @@ class IfElseStmtNode extends StmtNode {
         p.println("]"); 
     }
 
-    public Type checkType() {
+    public void checkType() {
 		Type type = myExp.checkType();
 
         // check expression part
         if (type.isErrorType()) {
             // is an error, do not print another message
-            return new ErrorType();
-        }
+			// do nothing
+		}
         else if (!type.isLogicalType()) {
             // if not logical type then throw error; else continue
-            ErrMsg.fatal(myId.myLineNum, myId.myCharNum, "Non-logical expression used in if condition");
-            return new ErrorType();
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
         }
 
 		// checkType on myThenDeclList
@@ -1120,18 +1118,17 @@ class WhileStmtNode extends StmtNode {
         p.println("]");
     }
 
-    public Type checkType() {
+    public void checkType() {
 		Type type = myExp.checkType();
 
         // check expression part
         if (type.isErrorType()) {
             // is an error, do not print another message
-            return new ErrorType();
-        }
+			// do nothing
+		}
         else if (!type.isLogicalType()) {
             // if not logical type then throw error; else continue
-            ErrMsg.fatal(myId.myLineNum, myId.myCharNum, "Non-logical expression used in if condition");
-            return new ErrorType();
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
         }
 
 		// checkType on myDeclList
@@ -1295,7 +1292,7 @@ class TrueNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return new LogicalType();
     }
 
 	public int charNum() {
@@ -1321,7 +1318,7 @@ class FalseNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return new LogicalType();
     }
 
 	public int charNum() {
@@ -1400,7 +1397,7 @@ class IdNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return sym().getType();
     }
 
     public void unparse(PrintWriter p, int indent) {
@@ -1428,7 +1425,7 @@ class IntLitNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return new IntegerType();
     }
 
     public int charNum() {
@@ -1456,7 +1453,7 @@ class StrLitNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		return new StringType();
     }
 
     public int charNum() {
@@ -1644,7 +1641,37 @@ class AssignExpNode extends ExpNode {
     }
 
     public Type checkType() {
-
+		Type leftType = lhs.checkType();
+		Type expType = exp.checkType();
+		
+		// if either are an error; stop and just return error
+		if (leftType.isErrorType() || expType.isErrorType())
+			return new ErrorType();
+		
+		// check if lhs and expType are either both ints or both logical
+		if (leftType.isLogicalType() && expType.isLogicalType()) {
+			return new LogicalType();
+		} else if (leftType.isIntegerType() && expType.isIntegerType()) {
+			return new IntegerType();
+		} else if (!leftType.equals(expType)) {
+			// check if mismatch
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Mismatched type");
+			return new ErrorType();
+		} else if (leftType.isFctnType() && expType.isFctnType()) {
+			// check if both are functions
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to function name");
+			return new ErrorType();
+		} else if (leftType.isTupleType() && expType.isTupleType()) {
+			// check if both are tuples
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple name");
+			return new ErrorType();
+		} else if (leftType.isTupleDefType() && expType.isTupleDefType()) {
+			// check if both are tuple variables
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple variable");
+			return new ErrorType();
+		} else {
+			System.out.println("Something very wrong happened");
+		}
     }
 
 	public int charNum() {
