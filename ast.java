@@ -1563,8 +1563,41 @@ class CallExpNode extends ExpNode {
         myExpList.nameAnalysis(symTab);
     }
 
-    public Type checkType() {
+    public Type checkType() { // returning the type of the return type
+	Type type1 = myId.checkType();
+	if (!type1.isFctnType()) { // not function type
+	    ErrMsg.fatal(myId.lineNum(), myId.charNum(), "Call attempt on non-function");
+	    return new ErrorType();
+	}
 
+	LinkedList<Type> actualTypes = LinkedList<Type>();
+	for (ExpNode e : myExpList) {
+	    actualTypes.add(e.checkType());
+	    if (actualTypes.isErrorType()) {
+                return new ErrorType();
+	    }
+	}
+
+	int numParams = (FctnSym)(myId.sym()).getNumParams();
+	LinkedList<Type> formalTypes = (FctnSym)(myId.sym()).getParamTypes();
+	if (numParams != actualTypes.length()) { // different size
+	    ErrMsg.fatal(myId.lineNum(), myId.charNum(), "Function call with wrong # of args");
+	    return new ErrorType();
+	}
+
+	boolean wrongActualArg = false;
+	for (int i = 0; i < myExpList.length(); i++) {
+            if (!actualTypes.get(i).toString().equals(formalTypes.get(i).toString())) {
+                ErrMsg.fatal(myExpList.get(i).lineNum(), myExpList.get(i).charNum(), "Actual type does not match formal type");
+                wrongActualArg = true;
+	    }
+	}
+	if (wrongActualArg) { // this means at least one actual doesn't match formal
+	    return new ErrorType();
+	}
+		
+	// reached here means its correct
+	return (FctnSym)(myId.sym()).getReturnType();
     } 
 
     // **** unparse ****
@@ -1790,6 +1823,33 @@ class EqualsNode extends BinaryExpNode {
     }
 
     public Type checkType() {
+    	Type type1 = myExp1.checkType();
+	Type type2 = myExp2.checkType();
+	if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
+	if (!type1.toString().equals(type2.toString())) { // not the same type
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Mismatched type");
+	    return new ErrorType();
+	} else if ((type1.isIntegerType() && type2.isIntegerType()) ||
+			(type1.isLogicalType() && type2.isLogicalType()) || 
+			(type1.isStringType() && type2.isStringType())) { // correct
+	    return new LogicalType();
+	} else if (myExp1 instanceof CallExpNode && myExp2 instanceof CallExpNode &&
+			type1.isVoidType() && type2.isVoidType()) { // this is expecting return types of fctn call
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with void function calls");
+	    return new ErrorType();
+	} else if (type1.isFctnType() && type2.isFctnType()) { // function  name
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with function names");
+	    return new ErrorType();
+	} else if (type1.isTupleType() && type2.isTupleType()) { // tuple name
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
+	    return new ErrorType();
+	} else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple variable
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple variables");
+	    return new ErrorType();
+	} else { // something else needs to happen here
+	    System.out.println("Something very wrong happened");
+	    return new Type();
+	}
     }
 }
 
@@ -1807,6 +1867,33 @@ class NotEqualsNode extends BinaryExpNode {
     }
 
     public Type checkType() {
+	Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
+        if (!type1.toString().equals(type2.toString())) { // not the same type
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Mismatched type");
+            return new ErrorType();
+        } else if ((type1.isIntegerType() && type2.isIntegerType()) ||
+                        (type1.isLogicalType() && type2.isLogicalType()) ||
+                        (type1.isStringType() && type2.isStringType())) { // correct
+            return new LogicalType();
+        } else if (myExp1 instanceof CallExpNode && myExp2 instanceof CallExpNode &&
+                        type1.isVoidType() && type2.isVoidType()) { // this is expecting return types of fctn call
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with void function calls");
+            return new ErrorType();
+        } else if (type1.isFctnType() && type2.isFctnType()) { // function  name
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with function names");
+            return new ErrorType();
+        } else if (type1.isTupleType() && type2.isTupleType()) { // tuple name
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
+            return new ErrorType();
+        } else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple variable
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple variables");
+            return new ErrorType();
+        } else { // something else needs to happen here
+            System.out.println("Something very wrong happened");
+            return new Type();
+        }
     }
 }
 
