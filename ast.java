@@ -1875,7 +1875,7 @@ class NotNode extends UnaryExpNode {
     }
 
 	public Type checkType() {
-		Type type = exp.checkType();
+		Type type = myExp.checkType();
 
 		if (type.isLogicalType()) {
 			return new LogicalType();
@@ -1884,17 +1884,17 @@ class NotNode extends UnaryExpNode {
 		}
 		else {
 			// type is not logical/error, print "Logical operator used with non-logical operand"
-			ErrMsg.fatal(exp.lineNum(), exp.charNum(), "Logical operator used with non-logical operand");
+			ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Logical operator used with non-logical operand");
 			return new ErrorType();
 		}
     }
 
 	public int charNum() {
-        return exp.charNum();
+        return myExp.charNum();
     }
 
     public int lineNum() {
-        return exp.lineNum();
+        return myExp.lineNum();
     }
 }
 
@@ -1909,16 +1909,16 @@ class UnaryMinusNode extends UnaryExpNode {
         p.print(")");
     }
 
-    public Type checkType() {
+    public void checkType() {
 
     }
 
 	public int charNum() {
-        return exp.charNum();
+        return myExp.charNum();
     }
 
     public int lineNum() {
-        return exp.lineNum();
+        return myExp.lineNum();
     }
 }
 
@@ -1955,11 +1955,11 @@ class PlusNode extends BinaryExpNode {
     }
 
 	public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -1992,11 +1992,11 @@ class MinusNode extends BinaryExpNode {
     }
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2029,11 +2029,11 @@ class TimesNode extends BinaryExpNode {
     }
 	
 	public int charNum() {
-        return exp.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2066,11 +2066,11 @@ class DivideNode extends BinaryExpNode {
     }
 
 	public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2118,11 +2118,11 @@ class EqualsNode extends BinaryExpNode {
     }
 
 	public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2170,11 +2170,11 @@ class NotEqualsNode extends BinaryExpNode {
     }
 
 	public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2205,11 +2205,11 @@ class GreaterNode extends BinaryExpNode {
     }
 	
 	public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2240,11 +2240,11 @@ class GreaterEqNode extends BinaryExpNode {
     }
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2275,11 +2275,11 @@ class LessNode extends BinaryExpNode {
     }
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2310,11 +2310,11 @@ class LessEqNode extends BinaryExpNode {
     }
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2333,8 +2333,8 @@ class AndNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-		Type type1 = exp1.checkType();
-		Type type2 = exp2.checkType();
+		Type type1 = myExp1.checkType();
+		Type type2 = myExp2.checkType();
 
         if (type1.isLogicalType() && type2.isLogicalType()) {
             return new LogicalType();
@@ -2343,21 +2343,21 @@ class AndNode extends BinaryExpNode {
         }
         else if (!type1.isLogicalType()) {
             // type1 is not logical, "Logical operator used with non-logical operand"
-            ErrMsg.fatal(exp1.lineNum(), exp1.charNum(), "Logical operator used with non-logical operand");
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Logical operator used with non-logical operand");
             return new ErrorType();
         } else {
 			// type2 is not logical, "Logical operator used with non-logical operand"
-            ErrMsg.fatal(exp2.lineNum(), exp2.charNum(), "Logical operator used with non-logical operand");
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Logical operator used with non-logical operand");
             return new ErrorType();
 		}
 	}
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
 
@@ -2375,8 +2375,8 @@ class OrNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-        Type type1 = exp1.checkType();
-        Type type2 = exp2.checkType();
+        Type type1 = myExp1.checkType();
+        Type type2 = myExp2.checkType();
 
         if (type1.isLogicalType() && type2.isLogicalType()) {
             return new LogicalType();
@@ -2385,20 +2385,20 @@ class OrNode extends BinaryExpNode {
         }
         else if (!type1.isLogicalType()) {
             // type1 is not logical, "Logical operator used with non-logical operand"
-            ErrMsg.fatal(exp1.lineNum(), exp1.charNum(), "Logical operator used with non-logical operand");
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Logical operator used with non-logical operand");
             return new ErrorType();
         } else {
             // type2 is not logical, "Logical operator used with non-logical operand"
-            ErrMsg.fatal(exp2.lineNum(), exp2.charNum(), "Logical operator used with non-logical operand");
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Logical operator used with non-logical operand");
             return new ErrorType();
         }
     }
 
     public int charNum() {
-        return exp1.charNum();
+        return myExp1.charNum();
     }
 
     public int lineNum() {
-        return exp1.lineNum();
+        return myExp1.lineNum();
     }
 }
