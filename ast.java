@@ -222,11 +222,21 @@ class StmtListNode extends ASTnode {
         } 
     }
 
-	public Type checkType() {
-		for (StmtNode node : myStmts) {
-			node.checkType();
-		}
+    public Type checkType() { // normal version without ret (i.e. while/if)
+	for (StmtNode node : myStmts) {
+	    node.checkType();
 	}
+    }
+
+    public Type checkType(Type myRetType) {
+	for (StmtNode node : myStmts) {
+	    if (node instanceof ReturnStmtNode) { // so that FctnBody
+		node.checkType(myRetType);
+	    } else {
+	        node.checkType();
+	    }
+	}
+    }
 
     // list of children (StmtNodes)
     private List<StmtNode> myStmts;
@@ -337,10 +347,10 @@ class FctnBodyNode extends ASTnode {
         myStmtList.unparse(p, indent);
     }
 
-	public Type checkType() {
-		myDeclList.checkType();
-		myStmtList.checkType();
-	}
+    public Type checkType(Type myRetType) {
+	myDeclList.checkType();
+	myStmtList.checkType(myRetType);
+    }
 
     // 2 children
     private DeclListNode myDeclList;
@@ -562,8 +572,8 @@ class FctnDeclNode extends DeclNode {
         p.println("]\n");
     }
 
-    public Type checkType() {
-
+    public Type checkType() { // don't need to do type check on formalList since its fctn decl?
+	myBody.checkType(myType.type());
     }
 
     // 4 children
@@ -1294,8 +1304,20 @@ class ReturnStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() {
-
+    public Type checkType(Type myRetType) {
+	if (!myRetType.isVoidType() && myExp == null) { // non-void fctn with no return val
+	    ErrMsg.fatal(0, 0, "Return value missing");
+	    return new ErrorType();
+	} else if (myRetType.isVoidType() && myExp != null) { // void fctn with return val
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return with value in void function");
+	    return new ErrorType();
+	} else if (!myRetType.isVoidType() && !myRetType.equals(myExp.checkType())) {
+	    // non-void fctn with different return types
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return value wrong type");
+	    return new ErrorType();
+	} else { // should be correct
+	    return myExp.checkType();
+	}
     }
 
     // 1 child
@@ -1311,11 +1333,9 @@ abstract class ExpNode extends ASTnode {
      * Default version for nodes with no names
      ***/
     public void nameAnalysis(SymTable symTab) { }
-
-	public int charNum() { }
-
+    public int charNum() { }
     public int lineNum() { }
-
+    public Type checkType() { }
 }
 
 class TrueNode extends ExpNode {
@@ -1642,8 +1662,8 @@ class TupleAccessNode extends ExpNode {
         myId.unparse(p, 0);
     }
 
-    public Type checkType() {
-	
+    public Type checkType() { // doesn't do any checks on the type of the tuple
+	return myId.checkType();	
     }
 
     // 4 children
