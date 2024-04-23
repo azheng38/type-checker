@@ -1169,7 +1169,24 @@ class ReadStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp.checkType();
+	if (type1.isErrorType()) return new ErrorType();
+	if (type1.isFctnType()) { // function name
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of function name");
+	    return new ErrorType();
+	} else if (type1.isTupleType()) { // tuple name
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple name");
+	    return new ErrorType();
+	} else if (type1.isTupleType()) { // tuple variable
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple variable");
+	    return new ErrorType();
+	} else if (type1.isIntegerType()) {
+	    return new IntegerType();
+	} else if (type1.isLogicalType()) {
+	    return new LogicalType();
+	} else { // shouldn't reach here
+	    System.out.println("Something very wrong happened");
+	}
     }
 
     // 1 child (actually can only be an IdNode or a TupleAccessNode)
@@ -1196,8 +1213,28 @@ class WriteStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() {
-
+    public Type checkType() { // note that myExp may be tupleAccessNode
+	Type type1 = myExp.checkType();
+        if (type1.isErrorType()) return new ErrorType();
+        if (type1.isFctnType()) { // function name
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of function name");
+            return new ErrorType();
+        } else if (type1.isTupleType()) { // tuple name
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple name");
+            return new ErrorType();
+        } else if (type1.isTupleType()) { // tuple variable
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple variable");
+            return new ErrorType();
+	} else if (myExp instanceof CallExpNode && type1.isVoidType()) { // void fctn ret
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of void");
+	    return new ErrorType();
+        } else if (type1.isIntegerType()) {
+            return new IntegerType();
+        } else if (type1.isLogicalType()) {
+            return new LogicalType();
+        } else { // shouldn't reach here
+            System.out.println("Something very wrong happened");
+        }
     }
 
     // 1 child
@@ -1224,7 +1261,7 @@ class CallStmtNode extends StmtNode {
     }
 
     public Type checkType() {
-
+	return myCall.checkType();
     }
 
     // 1 child
@@ -1606,7 +1643,7 @@ class TupleAccessNode extends ExpNode {
     }
 
     public Type checkType() {
-
+	
     }
 
     // 4 children
