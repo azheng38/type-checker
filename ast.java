@@ -140,8 +140,8 @@ class ProgramNode extends ASTnode {
         myDeclList.unparse(p, indent);
     }
 
-    public Type checkType() {
-		myDeclList.checkType();
+    public void checkType() {
+	myDeclList.checkType();
     }
 
     // 1 child
@@ -196,6 +196,10 @@ class DeclListNode extends ASTnode {
 		}
 	}
 
+    public List<DeclNode> getDeclList() {
+	return myDecls;
+    }
+
     // list of children (DeclNodes)
     private List<DeclNode> myDecls;
 }
@@ -238,6 +242,10 @@ class StmtListNode extends ASTnode {
 	}
     }
 
+    public List<StmtNode> getStmtList() {
+	return myStmts;
+    }
+
     // list of children (StmtNodes)
     private List<StmtNode> myStmts;
 }
@@ -272,6 +280,10 @@ class ExpListNode extends ASTnode {
 	for ( ExpNode node : myExps) {
  	    node.checkType();
 	}
+    }
+
+    public List<ExpNode> getExpList() {
+	return myExps;
     }
 
     // list of children (ExpNodes)
@@ -368,6 +380,7 @@ abstract class DeclNode extends ASTnode {
      * Note: a formal decl needs to return a sym
      ***/
     abstract public Sym nameAnalysis(SymTable symTab);
+    abstract public void checkType();
 }
 
 class VarDeclNode extends DeclNode {
@@ -960,12 +973,14 @@ class IfStmtNode extends StmtNode {
 		}
 
 		// checkType on myDeclList
-		for (DeclListNode node : myDeclList) {
+		List<DeclNode> declList = myDeclList.getDeclList();
+		for (DeclNode node : declList) {
 			node.checkType();
 		}
 
 		// checkType on myStmtList
-		for (StmtListNode node : myStmtList) {
+		List<StmtNode> stmtList = myStmtList.getStmtList();
+		for (StmtNode node : stmtList) {
 			node.checkType();
 		}
     }
@@ -1052,23 +1067,27 @@ class IfElseStmtNode extends StmtNode {
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
         }
 
-		// checkType on myThenDeclList
-        for (DeclListNode node : myThenDeclList) {
+	// checkType on myThenDeclList
+        List<DeclNode> thenDeclList = myThenDeclList.getDeclList();
+	for (DeclNode node : thenDeclList) {
             node.checkType();
         }
 
         // checkType on myThenStmtList
-        for (StmtListNode node : myThenStmtList) {
+        List<StmtNode> thenStmtList = myThenStmtList.getStmtList();
+	for (StmtNode node : thenStmtList) {
             node.checkType();
         }
 
-		// checkType on myElseDeclList
-        for (DeclListNode node : myElseDeclList) {
+	// checkType on myElseDeclList
+        List<DeclNode> elseDeclList = myElseDeclList.getDeclList();
+	for (DeclNode node : elseDeclList) {
             node.checkType();
         }
 
         // checkType on myElseStmtList
-        for (StmtListNode node : myElseStmtList) {
+        List<StmtNode> elseStmtList = myElseStmtList.getStmtList();
+	for (StmtNode node : elseStmtList) {
             node.checkType();
         }
     }
@@ -1135,12 +1154,14 @@ class WhileStmtNode extends StmtNode {
         }
 
 		// checkType on myDeclList
-        for (DeclListNode node : myDeclList) {
+	List<DeclNode> declList = myDeclList.getDeclList();
+        for (DeclNode node : declList) {
             node.checkType();
         }
 
         // checkType on myStmtList
-        for (StmtListNode node : myStmtList) {
+	List<StmtNode> stmtList = myStmtList.getStmtList();
+        for (StmtNode node : stmtList) {
             node.checkType();
         }
     }
@@ -1171,22 +1192,22 @@ class ReadStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() {
+    public void checkType() {
 	Type type1 = myExp.checkType();
-	if (type1.isErrorType()) return new ErrorType();
+	//if (type1.isErrorType()) return new ErrorType();
 	if (type1.isFctnType()) { // function name
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of function name");
-	    return new ErrorType();
+	    //return new ErrorType();
 	} else if (type1.isTupleType()) { // tuple name
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple name");
-	    return new ErrorType();
+	    //return new ErrorType();
 	} else if (type1.isTupleType()) { // tuple variable
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple variable");
-	    return new ErrorType();
+	    //return new ErrorType();
 	} else if (type1.isIntegerType()) {
-	    return new IntegerType();
+	    //return new IntegerType();
 	} else if (type1.isLogicalType()) {
-	    return new LogicalType();
+	    //return new LogicalType();
 	} else { // shouldn't reach here
 	    System.out.println("Something very wrong happened");
 	}
@@ -1286,17 +1307,18 @@ class ReturnStmtNode extends StmtNode {
         p.println(".");
     }
 
+    public void checkType() {
+	// has to be here so that it compiles
+    }
+
     public void checkType(Type myRetType) {
 	if (!myRetType.isVoidType() && myExp == null) { // non-void fctn with no return val
 	    ErrMsg.fatal(0, 0, "Return value missing");
-	    return new ErrorType();
 	} else if (myRetType.isVoidType() && myExp != null) { // void fctn with return val
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return with value in void function");
-	    return new ErrorType();
 	} else if (!myRetType.isVoidType() && !myRetType.equals(myExp.checkType())) {
 	    // non-void fctn with different return types
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return value wrong type");
-	    return new ErrorType();
 	}
     }
 
@@ -1313,9 +1335,9 @@ abstract class ExpNode extends ASTnode {
      * Default version for nodes with no names
      ***/
     public void nameAnalysis(SymTable symTab) { }
-    public int charNum() { }
-    public int lineNum() { }
-    public Type checkType() { }
+    abstract public int charNum();
+    abstract public int lineNum();
+    abstract public Type checkType();
 }
 
 class TrueNode extends ExpNode {
@@ -1397,7 +1419,7 @@ class IdNode extends ExpNode {
     public Sym sym() {
         return mySym;
     }
-    
+
     /***
      * Return the line number for this ID.
      ***/
@@ -1678,8 +1700,8 @@ class AssignExpNode extends ExpNode {
     }
 
     public Type checkType() {
-		Type leftType = lhs.checkType();
-		Type expType = exp.checkType();
+		Type leftType = myLhs.checkType();
+		Type expType = myExp.checkType();
 		
 		// if either are an error; stop and just return error
 		if (leftType.isErrorType() || expType.isErrorType())
@@ -1752,34 +1774,47 @@ class CallExpNode extends ExpNode {
 	    return new ErrorType();
 	}
 
+        List<ExpNode> expList = myExpList.getExpList();
 	LinkedList<Type> actualTypes = new LinkedList<Type>();
-	for (ExpNode e : myExpList) {
+	for (ExpNode e : expList) {
 	    actualTypes.add(e.checkType());
-	    if (actualTypes.isErrorType()) {
+	    if (e.checkType().isErrorType()) {
                 return new ErrorType();
 	    }
 	}
-
-	int numParams = (FctnSym)(myId.sym()).getNumParams();
-	LinkedList<Type> formalTypes = (FctnSym)(myId.sym()).getParamTypes();
-	if (numParams != actualTypes.length()) { // different size
+        
+	// sym must be fctnSym here
+	Sym sym = myId.sym();
+	FctnSym fctnSym;
+	if (sym instanceof FctnSym) {
+	    fctnSym = (FctnSym) sym;
+	} else {
+	    return new ErrorType();
+	}
+	int numParams = fctnSym.getNumParams();
+	List<Type> formalTypes = fctnSym.getParamTypes();
+	if (numParams != actualTypes.size()) { // different size
 	    ErrMsg.fatal(myId.lineNum(), myId.charNum(), "Function call with wrong # of args");
 	    return new ErrorType();
 	}
 
 	boolean wrongActualArg = false;
-	for (int i = 0; i < myExpList.length(); i++) {
+	for (int i = 0; i < expList.size(); i++) {
             if (!actualTypes.get(i).toString().equals(formalTypes.get(i).toString())) {
-                ErrMsg.fatal(myExpList.get(i).lineNum(), myExpList.get(i).charNum(), "Actual type does not match formal type");
+                ErrMsg.fatal(expList.get(i).lineNum(), expList.get(i).charNum(), "Actual type does not match formal type");
                 wrongActualArg = true;
 	    }
 	}
 	if (wrongActualArg) { // this means at least one actual doesn't match formal
 	    return new ErrorType();
 	}
+	
 		
-	// reached here means its correct
-	return (FctnSym)(myId.sym()).getReturnType();
+	// reached here means its correct and returns the ret type of function
+	if (sym instanceof FctnSym) 
+	    return ((FctnSym)sym).getReturnType();
+	else
+	    return sym.getType();
     } 
 
     // **** unparse ****
@@ -1909,7 +1944,7 @@ class UnaryMinusNode extends UnaryExpNode {
         p.print(")");
     }
 
-    public void checkType() {
+    public Type checkType() {
 
     }
 
@@ -1942,7 +1977,7 @@ class PlusNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
 	Type type2 = myExp2.checkType();
-	if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+	if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
 	if (!type1.isIntegerType()) {
 	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
             return new ErrorType();
@@ -1979,7 +2014,7 @@ class MinusNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
             return new ErrorType();
@@ -2016,7 +2051,7 @@ class TimesNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
             return new ErrorType();
@@ -2053,7 +2088,7 @@ class DivideNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
             return new ErrorType();
@@ -2113,7 +2148,7 @@ class EqualsNode extends BinaryExpNode {
 	    return new ErrorType();
 	} else { // something else needs to happen here
 	    System.out.println("Something very wrong happened");
-	    return new Type();
+	    return new LogicalType();
 	}
     }
 
@@ -2146,12 +2181,8 @@ class NotEqualsNode extends BinaryExpNode {
         if (!type1.toString().equals(type2.toString())) { // not the same type
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Mismatched type");
             return new ErrorType();
-        } else if ((type1.isIntegerType() && type2.isIntegerType()) ||
-                        (type1.isLogicalType() && type2.isLogicalType()) ||
-                        (type1.isStringType() && type2.isStringType())) { // correct
-            return new LogicalType();
-        } else if (myExp1 instanceof CallExpNode && myExp2 instanceof CallExpNode &&
-                        type1.isVoidType() && type2.isVoidType()) { // this is expecting return types of fctn call
+	} else if (myExp1 instanceof CallExpNode && myExp2 instanceof CallExpNode &&
+            type1.isVoidType() && type2.isVoidType()) { // this is expecting return types of fctn call
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with void function calls");
             return new ErrorType();
         } else if (type1.isFctnType() && type2.isFctnType()) { // function  name
@@ -2163,10 +2194,10 @@ class NotEqualsNode extends BinaryExpNode {
         } else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple variable
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple variables");
             return new ErrorType();
-        } else { // something else needs to happen here
-            System.out.println("Something very wrong happened");
-            return new Type();
-        }
+        } else { // correct
+            return new LogicalType();
+	}
+           
     }
 
 	public int charNum() {
@@ -2194,11 +2225,13 @@ class GreaterNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
-            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else if (!type2.isIntegerType()) {
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else { // no errors
             return new LogicalType();
         }
@@ -2229,11 +2262,13 @@ class GreaterEqNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
-            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else if (!type2.isIntegerType()) {
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
+  	    return new ErrorType();
         } else { // no errors
             return new LogicalType();
         }
@@ -2264,11 +2299,13 @@ class LessNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
-            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else if (!type2.isIntegerType()) {
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else { // no errors
             return new LogicalType();
         }
@@ -2299,11 +2336,13 @@ class LessEqNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return ErrorType();
+        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
-            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
+   	    return new ErrorType();
         } else if (!type2.isIntegerType()) {
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");                  return new ErrorType();
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
+	    return new ErrorType();
         } else { // no errors
             return new LogicalType();
         }
