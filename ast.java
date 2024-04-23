@@ -189,7 +189,7 @@ class DeclListNode extends ASTnode {
         }
     }
 
-    public Type checkType() {
+    public void checkType() {
 		// iterate through the elements and check each of their types
 		for (DeclNode node : myDecls) {
 			node.checkType();
@@ -222,13 +222,13 @@ class StmtListNode extends ASTnode {
         } 
     }
 
-    public Type checkType() { // normal version without ret (i.e. while/if)
+    public void checkType() { // normal version without ret (i.e. while/if)
 	for (StmtNode node : myStmts) {
 	    node.checkType();
 	}
     }
 
-    public Type checkType(Type myRetType) {
+    public void checkType(Type myRetType) {
 	for (StmtNode node : myStmts) {
 	    if (node instanceof ReturnStmtNode) { // so that FctnBody
 		node.checkType(myRetType);
@@ -268,8 +268,10 @@ class ExpListNode extends ASTnode {
         } 
     }
 
-    public Type checkType() {
-
+    public void checkType() {
+	for ( ExpNode node : myExps) {
+ 	    node.checkType();
+	}
     }
 
     // list of children (ExpNodes)
@@ -317,7 +319,7 @@ class FormalsListNode extends ASTnode {
         }
     }
 
-    public Type checkType() {
+    public void checkType() { // doesn't seem to be needed
 
     }
 
@@ -347,9 +349,8 @@ class FctnBodyNode extends ASTnode {
         myStmtList.unparse(p, indent);
     }
 
-    public Type checkType(Type myRetType) {
-	myDeclList.checkType();
-	myStmtList.checkType(myRetType);
+    public void checkType(Type myRetType) {
+	myStmtList.checkType(myRetType); // for returnStmtNode
     }
 
     // 2 children
@@ -473,8 +474,8 @@ class VarDeclNode extends DeclNode {
         p.println(".");
     }
 
-    public Type checkType() {
-
+    public void checkType() { // unused
+	
     }
 
     // 3 children
@@ -572,7 +573,7 @@ class FctnDeclNode extends DeclNode {
         p.println("]\n");
     }
 
-    public Type checkType() { // don't need to do type check on formalList since its fctn decl?
+    public void checkType() { // don't need to do type check on formalList since its fctn decl?
 	myBody.checkType(myType.type());
     }
 
@@ -645,7 +646,7 @@ class FormalDeclNode extends DeclNode {
         myId.unparse(p, 0);
     }
 
-    public Type checkType() {
+    public void checkType() { // unused
 
     }
 
@@ -719,7 +720,7 @@ class TupleDeclNode extends DeclNode {
         p.println("}.\n");
     }
 
-    public Type checkType() {
+    public void checkType() { // unused
 
     }
 
@@ -837,8 +838,8 @@ class AssignStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() {
-		return myAssign.checkType();	
+    public void checkType() {
+        myAssign.checkType();	
     }
 
     // 1 child
@@ -864,14 +865,10 @@ class PostIncStmtNode extends StmtNode {
         p.println("++.");
     }
 
-    public Type checkType() {
+    public void checkType() {
         Type type1 = myExp.checkType();
-	if (type1.isErrorType()) return new ErrorType();
 	if (!type1.isIntegerType()) {
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Arithmetic operator used with non-integer operand");
-	    return new ErrorType();
-	} else { // no error
-	    return new IntegerType();
 	}
     }
 
@@ -898,14 +895,10 @@ class PostDecStmtNode extends StmtNode {
         p.println("--.");
     }
 
-    public Type checkType() {
+    public void checkType() {
 	Type type1 = myExp.checkType();
-        if (type1.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else { // no error
-            return new IntegerType();
         }
     }
 
@@ -1223,27 +1216,16 @@ class WriteStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() { // note that myExp may be tupleAccessNode
+    public void checkType() { // note that myExp may be tupleAccessNode
 	Type type1 = myExp.checkType();
-        if (type1.isErrorType()) return new ErrorType();
         if (type1.isFctnType()) { // function name
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of function name");
-            return new ErrorType();
         } else if (type1.isTupleType()) { // tuple name
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple name");
-            return new ErrorType();
         } else if (type1.isTupleType()) { // tuple variable
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple variable");
-            return new ErrorType();
 	} else if (myExp instanceof CallExpNode && type1.isVoidType()) { // void fctn ret
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of void");
-	    return new ErrorType();
-        } else if (type1.isIntegerType()) {
-            return new IntegerType();
-        } else if (type1.isLogicalType()) {
-            return new LogicalType();
-        } else { // shouldn't reach here
-            System.out.println("Something very wrong happened");
         }
     }
 
@@ -1270,8 +1252,8 @@ class CallStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType() {
-	return myCall.checkType();
+    public void checkType() {
+	myCall.checkType();
     }
 
     // 1 child
@@ -1304,7 +1286,7 @@ class ReturnStmtNode extends StmtNode {
         p.println(".");
     }
 
-    public Type checkType(Type myRetType) {
+    public void checkType(Type myRetType) {
 	if (!myRetType.isVoidType() && myExp == null) { // non-void fctn with no return val
 	    ErrMsg.fatal(0, 0, "Return value missing");
 	    return new ErrorType();
@@ -1315,8 +1297,6 @@ class ReturnStmtNode extends StmtNode {
 	    // non-void fctn with different return types
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return value wrong type");
 	    return new ErrorType();
-	} else { // should be correct
-	    return myExp.checkType();
 	}
     }
 
@@ -1726,8 +1706,8 @@ class AssignExpNode extends ExpNode {
 			// check if both are tuple variables
 			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple variable");
 			return new ErrorType();
-		} else {
-			System.out.println("Something very wrong happened");
+		} else { // should be correct
+			return leftType;
 		}
     }
 
@@ -1772,7 +1752,7 @@ class CallExpNode extends ExpNode {
 	    return new ErrorType();
 	}
 
-	LinkedList<Type> actualTypes = LinkedList<Type>();
+	LinkedList<Type> actualTypes = new LinkedList<Type>();
 	for (ExpNode e : myExpList) {
 	    actualTypes.add(e.checkType());
 	    if (actualTypes.isErrorType()) {
@@ -2390,7 +2370,7 @@ class OrNode extends BinaryExpNode {
         p.print("(");
         myExp1.unparse(p, 0);
         p.print(" | ");
-        m/yExp2.unparse(p, 0);
+        myExp2.unparse(p, 0);
         p.print(")");
     }
 
