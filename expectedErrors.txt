@@ -2,3 +2,50 @@
 16:14 ****ERROR**** Write attempt of tuple name
 22:14 ****ERROR**** Write attempt of tuple variable
 29:14 ****ERROR**** Write attempt of void
+35:13 ****ERROR**** Read attempt of function name
+36:13 ****ERROR**** Read attempt of tuple name
+37:13 ****ERROR**** Read attempt of tuple variable
+44:5 ****ERROR**** Call attempt on non-function
+45:5 ****ERROR**** Call attempt on non-function
+53:5 ****ERROR**** Function call with wrong # of args
+54:28 ****ERROR**** Actual type does not match formal type
+54:39 ****ERROR**** Actual type does not match formal type
+0:0 ****ERROR**** Return value missing
+65:12 ****ERROR**** Return with value in void function
+70:12 ****ERROR**** Return value wrong type
+77:12 ****ERROR**** Return value wrong type
+84:12 ****ERROR**** Arithmetic operator used with non-integer operand
+84:22 ****ERROR**** Arithmetic operator used with non-integer operand
+89:14 ****ERROR**** Arithmetic operator used with non-integer operand
+89:12 ****ERROR**** Return with value in void function
+99:21 ****ERROR**** Arithmetic operator used with non-integer operand
+100:14 ****ERROR**** Arithmetic operator used with non-integer operand
+100:23 ****ERROR**** Arithmetic operator used with non-integer operand
+101:14 ****ERROR**** Arithmetic operator used with non-integer operand
+108:15 ****ERROR**** Logical operator used with non-logical operand
+109:14 ****ERROR**** Logical operator used with non-logical operand
+110:14 ****ERROR**** Logical operator used with non-logical operand
+110:23 ****ERROR**** Logical operator used with non-logical operand
+120:8 ****ERROR**** Non-logical expression used in if condition
+124:11 ****ERROR**** Non-logical expression used in if condition
+128:8 ****ERROR**** Non-logical expression used in if condition
+138:5 ****ERROR**** Mismatched type
+139:5 ****ERROR**** Mismatched type
+140:5 ****ERROR**** Mismatched type
+143:8 ****ERROR**** Mismatched type
+144:8 ****ERROR**** Mismatched type
+145:8 ****ERROR**** Mismatched type
+152:8 ****ERROR**** Equality operator used with void function calls
+153:8 ****ERROR**** Equality operator used with function names
+155:14 ****ERROR**** Equality operator used with void function calls
+156:14 ****ERROR**** Equality operator used with function names
+171:14 ****ERROR**** Equality operator used with tuple names
+172:14 ****ERROR**** Equality operator used with tuple names
+173:14 ****ERROR**** Equality operator used with tuple names
+174:14 ****ERROR**** Equality operator used with tuple names
+176:8 ****ERROR**** Equality operator used with tuple names
+177:8 ****ERROR**** Equality operator used with tuple names
+178:11 ****ERROR**** Equality operator used with tuple names
+180:8 ****ERROR**** Equality operator used with tuple names
+181:8 ****ERROR**** Equality operator used with tuple names
+182:11 ****ERROR**** Equality operator used with tuple names

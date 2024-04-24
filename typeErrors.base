@@ -1,7 +1,7 @@
 !! Write attempt of function name
 integer invalidAttempt{} [ ]
 
-integer one{} [
+void one{} [
     write << invalidAttempt.
 ]
 
@@ -12,12 +12,12 @@ tuple Point {
     integer a.
 }.
 
-integer two{} [
+void two{} [
     write << Point.
 ]
 
 !! Write attempt of tuple variable
-integer three{} [
+void three{} [
 	tuple Point writeTupVar.
     write << writeTupVar.	
 ]
@@ -26,8 +26,177 @@ integer three{} [
 void four{} [ ]
 
 void five{} [    
-	write << four().
+    write << four().
 ]
+
+!! Bad read attempts
+void readAttemptsBad{} [
+    tuple Point readTupVar.
+    read >> four. !! Read attempt of function name
+    read >> Point. !! Read attempt of tuple name
+    read >> readTupVar. !! Read attempt of tuple variable
+]
+
+!! Bad Call attempts
+void six{} [
+    logical iAmLogical.
+    integer iAmAnArgument.
+    iAmLogical(). !! Call attempt on non-function
+    iAmLogical(iAmAnArgument). !! Make sure to not type-check parameters    
+]
+
+void wrongFuncCall {integer first, integer second, logical third} [ ]
+
+void seven{} [
+    integer onlyOne.
+    logical wrongType.
+    wrongFuncCall(onlyOne). !! Function call with wrong # of args
+    wrongFuncCall(onlyOne, wrongType, onlyOne). !! Actual type does not match formal type; should report TWO errors for the last two args
+]
+
+!! bad returns
+integer eight{} [
+    return. !! Return value missing
+]
+
+integer nine{} [ ] !! this is fine since it goes beyong the abilities of program
+
+void shouldNotReturn{} [
+    return "Hey".
+]
+
+logical wrongRetType {} [
+    integer imNotLog.
+    return imNotLog. !! Return value wrong type
+]
+
+logical ten{} [
+    integer a1.
+    integer a2.
+
+    return a1 + a2. !! Return value wrong type
+]
+
+integer eleven{} [
+    logical notInt1.
+    logical notInt2.
+
+    return notInt1 + notInt2. !! 2 Arithmetic operator used with non-integer operand; should not print "Return value wrong type"
+]
+
+void twelve {} [
+    logical logicalVari.
+    return 3+logicalVari. !! Arithmetic operator used with non-integer operand; should print "Return value wrong type"
+]
+
+integer iAmInt.
+integer meIntToo.
+
+logical logIAm.
+logical meTooLog.
+
+void thirteen {} [
+    iAmInt = iAmInt/logIAm. !! Arithmetic operator used with non-integer operand 99:21
+    iAmInt = logIAm * logIAm. !! Arithmetic operator used with non-integer operand 100:14 and 100:23
+    logIAm = meTooLog - iAmInt. !! Arithmetic operator used with non-integer operand 101:14
+    logIAm--. !! Arithmetic operator used with non-integer operand 102:4
+    meTooLog++. !! Arithmetic operator used with non-integer operand 103:4
+]
+
+!! Relational operator used with non-integer operand
+void fourteen{} [
+    logIAm = ~iAmInt. !! Logical operator used with non-logical operand 108:15
+    logIAm = iAmInt & logIAm. !! Logical operator used with non-logical operand 109:14
+    logIAm = iAmInt | meIntToo. !! Logical operator used with non-logical operand 110:14 and 110:23
+]
+
+!! Non-logical expression used in if condition
+
+logical logicalFunc{} [
+
+]
+
+void fifteen {} [
+    if iAmInt [
+		!! Non-logical expression used in if condition 120:8
+    ]
+
+    while iAmInt [
+		!! Non-logical expression used in while condition 124:11
+    ]
+
+    if iAmInt [] else [] !! Non-logical expression used in if condition 128:8
+
+    !! should be fine
+    if logicalFunc() [ ]
+    while logicalFunc() [ ]
+    if logicalFunc() [ ] else [ ]
+]
+
+!! Mismatched type
+void sixteen {} [
+    iAmInt = logIAm. !! Mismatched type 138:5
+    iAmInt = True. !! Mismatched type 139:5 
+    logIAm = 4. !! Mismatched type 140:5
+
+	!! Mismatched
+    if iAmInt == logIAm [] !! Mismatched 143:8
+    if iAmInt ~= logIAm [] !! 144:8
+    if iAmInt ~= logicalFunc() [] !! 145:8 
+    
+    !! should be fine
+    if logIAm == logicalFunc() []
+]
+
+void seventeen{} [
+    if fifteen() == sixteen() [] !! Equality operator used with void function calls 152:8
+    if fifteen == sixteen [] !! Equality operator used with function names 153:8
+
+    logIAm = fifteen() == sixteen(). !! Equality operator used with void function calls 155:14
+    logIAm = fifteen == sixteen. !! Equality operator used with function names 156:14 
+]
+
+tuple Color {
+    integer red.
+}.
+
+tuple Height {
+    integer feet.
+}.
+
+void eighteen {} [
+    tuple Color ccccc.
+    tuple Height hhhhhh.
+
+    logIAm = Color == Height. !! Equality operator used with tuple names 171:14
+    iAmInt = Color == Height. !! Equality operator used with tuple names 172:14
+    logIAm = Color ~= Height. !! Equality operator used with tuple names 173:14
+    iAmInt = Color ~= Height. !! Equality operator used with tuple names 174:14
+
+    if Color == Height [] !! Equality operator used with tuple names
+    if Color == Height [] else []
+    while Color == Height []
+
+    if Color ~= Height [] !! Equality operator used with tuple names 180:8
+    if Color ~= Height [] else [] !! 181:8
+    while Color ~= Height [] !! 182:11
+
+    !! Equality operator used with tuple variables
+    logIAm = ccccc == hhhhhh. !! Equality operator used with tuple var 185:14
+    iAmInt = ccccc == hhhhhh. !! Equality operator used with tuple var 186:14
+    logIAm = ccccc ~= hhhhhh. !! Equality operator used with tuple var 187:14
+    iAmInt = ccccc ~= hhhhhh. !! Equality operator used with tuple var 188:14
+
+    if ccccc == hhhhhh [] !! Equality operator used with tuple var 190:8
+    if ccccc == hhhhhh [] else [] !! 191:8
+    while ccccc == hhhhhh [] !! 192:11
+
+    if ccccc ~= hhhhhh [] !! Equality operator used with tuple var 194:8
+    if ccccc ~= hhhhhh [] else [] !! 195:8
+    while ccccc ~= hhhhhh [] !! 196:11
+]
+
+!! inside if statement and while loop errors
 
 !! additional tests
 logical bbb.

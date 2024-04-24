@@ -1313,11 +1313,15 @@ class ReturnStmtNode extends StmtNode {
     }
 
     public void checkType(Type myRetType) {
+    Type temp = null;
+    if (myExp != null)
+		temp = myExp.checkType();
+
 	if (!myRetType.isVoidType() && myExp == null) { // non-void fctn with no return val
 	    ErrMsg.fatal(0, 0, "Return value missing");
 	} else if (myRetType.isVoidType() && myExp != null) { // void fctn with return val
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return with value in void function");
-	} else if (!myRetType.isVoidType() && !myRetType.equals(myExp.checkType())) {
+	} else if (!myRetType.isVoidType() && !myRetType.equals(temp) && !temp.isErrorType()) {
 	    // non-void fctn with different return types
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Return value wrong type");
 	}
@@ -1833,7 +1837,7 @@ class CallExpNode extends ExpNode {
     }
 
     public int lineNum() {
-        return myId.charNum();
+        return myId.lineNum();
     }
 
     // 2 children
