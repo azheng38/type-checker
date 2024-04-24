@@ -1151,7 +1151,7 @@ class WhileStmtNode extends StmtNode {
 		}
         else if (!type.isLogicalType()) {
             // if not logical type then throw error; else continue
-            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in if condition");
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Non-logical expression used in while condition");
         }
 
 		// checkType on myDeclList
