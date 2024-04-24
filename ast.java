@@ -1199,11 +1199,11 @@ class ReadStmtNode extends StmtNode {
 	if (type1.isFctnType()) { // function name
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of function name");
 	    //return new ErrorType();
-	} else if (type1.isTupleType()) { // tuple name
-	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple name");
-	    //return new ErrorType();
 	} else if (type1.isTupleType()) { // tuple variable
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple variable");
+	    //return new ErrorType();
+	} else if (type1.isTupleDefType()) { // tuple name
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Read attempt of tuple name");
 	    //return new ErrorType();
 	} else if (type1.isIntegerType()) {
 	    //return new IntegerType();
@@ -1242,10 +1242,10 @@ class WriteStmtNode extends StmtNode {
 	Type type1 = myExp.checkType();
         if (type1.isFctnType()) { // function name
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of function name");
-        } else if (type1.isTupleType()) { // tuple name
-            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple name");
         } else if (type1.isTupleType()) { // tuple variable
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple variable");
+        } else if (type1.isTupleDefType()) { // tuple name
+            ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple name");
 	} else if (myExp instanceof CallExpNode && type1.isVoidType()) { // void fctn ret
 	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of void");
         }
@@ -1717,17 +1717,17 @@ class AssignExpNode extends ExpNode {
 			// check if mismatch
 			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Mismatched type");
 			return new ErrorType();
-		} else if (leftType.isFctnType() && expType.isFctnType()) {
+		} else if (leftType.isFctnType()) {
 			// check if both are functions
 			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to function name");
 			return new ErrorType();
-		} else if (leftType.isTupleType() && expType.isTupleType()) {
-			// check if both are tuples
-			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple name");
-			return new ErrorType();
-		} else if (leftType.isTupleDefType() && expType.isTupleDefType()) {
+		} else if (leftType.isTupleType()) {
 			// check if both are tuple variables
 			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple variable");
+			return new ErrorType();
+		} else if (leftType.isTupleDefType()) {
+			// check if both are tuple name
+			ErrMsg.fatal(myLhs.lineNum(), myLhs.charNum(), "Assignment to tuple name");
 			return new ErrorType();
 		} else { // should be correct
 			return leftType;
@@ -1985,15 +1985,20 @@ class PlusNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
 	Type type2 = myExp2.checkType();
+	boolean flag = false;
 	if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
 	if (!type1.isIntegerType()) {
 	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-	} else if (!type2.isIntegerType()) {
+	    flag = true;
+	}
+	if (!type2.isIntegerType()) {
 	    ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-	} else { // no errors
+	    flag = true;
+	}
+        if (!flag) { // no errors
 	    return new IntegerType();
+	} else {
+	    return new ErrorType();
 	}
     }
 
@@ -2022,15 +2027,20 @@ class MinusNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new IntegerType();
+        } else {
+            return new ErrorType();
         }
     }
 
@@ -2059,15 +2069,20 @@ class TimesNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new IntegerType();
+        } else {
+            return new ErrorType();
         }
     }
 	
@@ -2096,15 +2111,20 @@ class DivideNode extends BinaryExpNode {
     public Type checkType() {
     	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Arithmetic operator used with non-integer operand");
-            return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new IntegerType();
+        } else {
+            return new ErrorType();
         }
     }
 
@@ -2148,11 +2168,11 @@ class EqualsNode extends BinaryExpNode {
 	} else if (type1.isFctnType() && type2.isFctnType()) { // function  name
 	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with function names");
 	    return new ErrorType();
-	} else if (type1.isTupleType() && type2.isTupleType()) { // tuple name
-	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
-	    return new ErrorType();
-	} else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple variable
+	} else if (type1.isTupleType() && type2.isTupleType()) { // tuple variable
 	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple variables");
+	    return new ErrorType();
+	} else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple name
+	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
 	    return new ErrorType();
 	} else { // something else needs to happen here
 	    System.out.println("Something very wrong happened");
@@ -2193,14 +2213,14 @@ class NotEqualsNode extends BinaryExpNode {
             type1.isVoidType() && type2.isVoidType()) { // this is expecting return types of fctn call
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with void function calls");
             return new ErrorType();
-        } else if (type1.isFctnType() && type2.isFctnType()) { // function  name
+        } else if (type1.isFctnType() && type2.isFctnType()) { // function name
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with function names");
             return new ErrorType();
-        } else if (type1.isTupleType() && type2.isTupleType()) { // tuple name
-            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
-            return new ErrorType();
-        } else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple variable
+        } else if (type1.isTupleType() && type2.isTupleType()) { // tuple variable
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple variables");
+            return new ErrorType();
+        } else if (type1.isTupleDefType() && type2.isTupleDefType()) { // tuple name
+            ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Equality operator used with tuple names");
             return new ErrorType();
         } else { // correct
             return new LogicalType();
@@ -2233,16 +2253,21 @@ class GreaterNode extends BinaryExpNode {
     public Type checkType() {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
-        if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
+        boolean flag = false;
+	if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else if (!type2.isIntegerType()) {
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else { // no errors
-            return new LogicalType();
+	    flag = true;
         }
+	if (!type2.isIntegerType()) {
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
+	    flag = true;
+        }
+	if (!flag) { // no errors
+            return new LogicalType();
+        } else {
+	    return new ErrorType();
+	}
     }
 	
 	public int charNum() {
@@ -2268,17 +2293,22 @@ class GreaterEqNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-	Type type1 = myExp1.checkType();
+    	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
-  	    return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new LogicalType();
+        } else {
+            return new ErrorType();
         }
     }
 
@@ -2305,17 +2335,22 @@ class LessNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-	Type type1 = myExp1.checkType();
+    	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new LogicalType();
+        } else {
+            return new ErrorType();
         }
     }
 
@@ -2342,17 +2377,22 @@ class LessEqNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-	Type type1 = myExp1.checkType();
+    	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
         if (!type1.isIntegerType()) {
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Relational operator used with non-integer operand");
-   	    return new ErrorType();
-        } else if (!type2.isIntegerType()) {
+            flag = true;
+        }
+        if (!type2.isIntegerType()) {
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Relational operator used with non-integer operand");
-	    return new ErrorType();
-        } else { // no errors
+            flag = true;
+        }
+        if (!flag) { // no errors
             return new LogicalType();
+        } else {
+            return new ErrorType();
         }
     }
 
@@ -2380,24 +2420,34 @@ class AndNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-		Type type1 = myExp1.checkType();
-		Type type2 = myExp2.checkType();
+	Type type1 = myExp1.checkType();
+	Type type2 = myExp2.checkType();
+	boolean flag = false;
 
         if (type1.isLogicalType() && type2.isLogicalType()) {
             return new LogicalType();
-        } else if (type1.isErrorType() || type2.isErrorType()) {
+        }
+	
+	if (type1.isErrorType() || type2.isErrorType()) {
             return new ErrorType();
         }
-        else if (!type1.isLogicalType()) {
+        
+	if (!type1.isLogicalType()) {
             // type1 is not logical, "Logical operator used with non-logical operand"
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Logical operator used with non-logical operand");
-            return new ErrorType();
-        } else {
-			// type2 is not logical, "Logical operator used with non-logical operand"
-            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Logical operator used with non-logical operand");
-            return new ErrorType();
-		}
+            flag = true;
 	}
+        if (!type2.isLogicalType()) {
+	    // type2 is not logical, "Logical operator used with non-logical operand"
+            ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Logical operator used with non-logical operand");
+	    flag = true;
+	}
+	if (!flag) { // shouldn't reach here but have it anyways
+	    return new LogicalType();
+	} else {
+	    return new ErrorType();
+	}
+    }
 
     public int charNum() {
         return myExp1.charNum();
@@ -2422,21 +2472,31 @@ class OrNode extends BinaryExpNode {
     }
 
     public Type checkType() {
-        Type type1 = myExp1.checkType();
+    	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
+        boolean flag = false;
 
         if (type1.isLogicalType() && type2.isLogicalType()) {
             return new LogicalType();
-        } else if (type1.isErrorType() || type2.isErrorType()) {
+        }
+
+        if (type1.isErrorType() || type2.isErrorType()) {
             return new ErrorType();
         }
-        else if (!type1.isLogicalType()) {
+
+        if (!type1.isLogicalType()) {
             // type1 is not logical, "Logical operator used with non-logical operand"
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Logical operator used with non-logical operand");
-            return new ErrorType();
-        } else {
+            flag = true;
+        }
+        if (!type2.isLogicalType()) {
             // type2 is not logical, "Logical operator used with non-logical operand"
             ErrMsg.fatal(myExp2.lineNum(), myExp2.charNum(), "Logical operator used with non-logical operand");
+            flag = true;
+        }
+        if (!flag) { // shouldn't reach here but have it anyways
+            return new LogicalType();
+        } else {
             return new ErrorType();
         }
     }
