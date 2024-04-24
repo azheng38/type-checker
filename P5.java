@@ -56,7 +56,7 @@ public class P5 {
         ((ProgramNode)root.value).nameAnalysis();  // perform name analysis
 
 	if (!ErrMsg.getErr()) {
-	    ((ASTnode)root.value).checkType(); // perform type check
+	    ((ProgramNode)root.value).checkType(); // perform type check
 	}
 
         if (!ErrMsg.getErr()) {  // if no errors, unparse

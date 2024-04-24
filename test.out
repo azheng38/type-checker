@@ -1,0 +1,18 @@
+tuple Point<tuple> {
+    integer x<integer>.
+    integer y<integer>.
+}.
+
+integer f<integer,logical->integer>{integer x<integer>, logical b<logical>} [
+]
+
+void g<->void>{} [
+    integer a<integer>.
+    logical b<logical>.
+    tuple Point p<Point>.
+    (p<Point>):x<integer> = a<integer>.
+    b<logical> = (a<integer> == 3).
+    f<integer,logical->integer>((a<integer> + ((p<Point>):y<integer> * 2)), b<logical>).
+    g<->void>().
+]
+

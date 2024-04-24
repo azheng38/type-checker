@@ -30,3 +30,47 @@ void five{} [
 	write << four().
 ]
 
+!! additional tests
+logical bbb.
+tuple R { integer a. }.
+tuple R q.
+
+void f{integer p1, logical p2} [
+]
+
+void main{} [
+    integer aaa.
+
+    $ some errors involving illegal operations on functions
+    aaa = f + f.
+    bbb = f == 3.
+    bbb = f > main.
+    bbb = f == f.
+
+    $ some errors involving bad function calls 
+    aaa().
+    f().
+    f(5).
+    f(aaa, aaa).
+    f(q, q:a).
+    R().
+
+    $ some errors involving tuples 
+    q = 5.
+    q = q.
+    read >> R.
+    q = True | 3.
+    bbb = R & q:a.
+
+    $ error involving return
+    return 10.
+
+    $ other type errors 
+    aaa = aaa + (~False).
+    aaa = aaa + "foo".
+    bbb = aaa.
+
+    $ don't give too many or too few error messages here 
+    bbb = (aaa + True) & (bbb < True).
+]
+
