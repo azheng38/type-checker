@@ -235,7 +235,7 @@ class StmtListNode extends ASTnode {
     public void checkType(Type myRetType) {
 	for (StmtNode node : myStmts) {
 	    if (node instanceof ReturnStmtNode) { // so that FctnBody
-		node.checkType(myRetType);
+		((ReturnStmtNode)node).checkType(myRetType);
 	    } else {
 	        node.checkType();
 	    }
@@ -830,6 +830,7 @@ class TupleNode extends TypeNode {
 
 abstract class StmtNode extends ASTnode {
     abstract public void nameAnalysis(SymTable symTab);
+    abstract public void checkType();
 }
 
 class AssignStmtNode extends StmtNode {
@@ -1055,7 +1056,7 @@ class IfElseStmtNode extends StmtNode {
     }
 
     public void checkType() {
-		Type type = myExp.checkType();
+	Type type = myExp.checkType();
 
         // check expression part
         if (type.isErrorType()) {
@@ -1945,7 +1946,14 @@ class UnaryMinusNode extends UnaryExpNode {
     }
 
     public Type checkType() {
-
+	Type type1 = myExp.checkType();
+	if (type1.isErrorType()) return new ErrorType();
+	if (!type1.isIntegerType()) {
+	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Arithmetic operator used with non-integer operand");
+            return new ErrorType();
+	} else { // no errors
+	    return new IntegerType();
+	}	
     }
 
 	public int charNum() {
