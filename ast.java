@@ -1805,7 +1805,7 @@ class CallExpNode extends ExpNode {
 
 	boolean wrongActualArg = false;
 	for (int i = 0; i < expList.size(); i++) {
-            if (!actualTypes.get(i).toString().equals(formalTypes.get(i).toString())) {
+            if (!actualTypes.get(i).equals(formalTypes.get(i))) {
                 ErrMsg.fatal(expList.get(i).lineNum(), expList.get(i).charNum(), "Actual type does not match formal type");
                 wrongActualArg = true;
 	    }
@@ -2158,7 +2158,7 @@ class EqualsNode extends BinaryExpNode {
     	Type type1 = myExp1.checkType();
 	Type type2 = myExp2.checkType();
 	if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
-	if (!type1.toString().equals(type2.toString())) { // not the same type
+	if (!type1.equals(type2)) { // not the same type
 	    ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Mismatched type");
 	    return new ErrorType();
 	} else if ((type1.isIntegerType() && type2.isIntegerType()) ||
@@ -2210,7 +2210,7 @@ class NotEqualsNode extends BinaryExpNode {
 	Type type1 = myExp1.checkType();
         Type type2 = myExp2.checkType();
         if (type1.isErrorType() || type2.isErrorType()) return new ErrorType();
-        if (!type1.toString().equals(type2.toString())) { // not the same type
+        if (!type1.equals(type2)) { // not the same type
             ErrMsg.fatal(myExp1.lineNum(), myExp1.charNum(), "Mismatched type");
             return new ErrorType();
 	} else if (myExp1 instanceof CallExpNode && myExp2 instanceof CallExpNode &&
