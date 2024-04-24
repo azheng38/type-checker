@@ -99,8 +99,8 @@ void thirteen {} [
     iAmInt = iAmInt/logIAm. !! Arithmetic operator used with non-integer operand 99:21
     iAmInt = logIAm * logIAm. !! Arithmetic operator used with non-integer operand 100:14 and 100:23
     logIAm = meTooLog - iAmInt. !! Arithmetic operator used with non-integer operand 101:14
-    logIAm--. !! Arithmetic operator used with non-integer operand 102:4
-    meTooLog++. !! Arithmetic operator used with non-integer operand 103:4
+    logIAm--. !! Arithmetic operator used with non-integer operand 102:5
+    meTooLog++. !! Arithmetic operator used with non-integer operand 103:5
 ]
 
 !! Relational operator used with non-integer operand
@@ -194,6 +194,32 @@ void eighteen {} [
     if ccccc ~= hhhhhh [] !! Equality operator used with tuple var 194:8
     if ccccc ~= hhhhhh [] else [] !! 195:8
     while ccccc ~= hhhhhh [] !! 196:11
+]
+
+void nineteen {} [
+    eighteen = seventeen. !! Assignment to function name 200:5
+
+    Color = Height. !! Assignment to tuple name 202:5
+]
+
+void twenty {} [
+    tuple Color c1.
+    tuple Point p2.
+
+    c1 = p2. !! Assignment to tuple variable !! 209:5
+]
+
+!! additional tests from write-up and Piazza
+tuple P {
+    integer ppppp.
+}.
+
+void testEverything {} [
+    integer a.
+
+    write << P + 1. !!P + 1 is an error; the write is OK
+    a = (True + 3) * 4. !!true + 3 is an error; the * is OK
+    a = True & (False | 3). !! false | 3 is an error; the & is OK
 ]
 
 !! inside if statement and while loop errors

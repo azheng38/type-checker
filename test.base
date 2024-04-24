@@ -13,3 +13,80 @@ void g{} [
     f(a + p:y*2, b).
     g().
 ]
+
+void iAmVoid {} [
+    return .
+]
+
+!! using integer functions
+integer retInt{} [
+    return 3.
+]
+
+logical retLog{} [
+    logical carrot.
+    return True & False | True | carrot.
+]
+
+void test {} [
+    integer aaa.
+    logical bbb.
+
+    aaa = retInt().
+    bbb = retLog().
+
+    if bbb []
+    if bbb [] else []
+    while bbb []
+
+    if True == True []
+    if True [] else []
+    while True []
+
+    if False []
+    if False [] else []
+    while False []
+    
+    if retLog() []
+    if retLog() [] else []
+    while retLog() []
+]
+
+integer mulPar {integer one, logical two, integer three} [
+    return one + 3.
+]
+
+integer test2 {} [
+    integer q.
+    logical w.
+    logical h.
+
+    mulPar(2, False, 1).
+    mulPar(q, w, q).
+
+    q = mulPar(q, False, retInt()) + 4.
+
+	!! write and read
+    write << "this is fine".
+    read >> w.
+
+    q = 3 * 4 / q + 1 - 2.
+    w = True & w | False.
+
+    w = h | True.
+
+    if w == h []
+    if w == h [] else []
+    while w == h []
+
+    if w ~= retLog() []
+    if w ~= True [] else []
+    while w ~= False []
+
+    if retInt() == 4 []
+
+    q++.
+    q--.
+    
+    return mulPar(q, True, 3).
+]

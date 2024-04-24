@@ -27,7 +27,7 @@
 110:14 ****ERROR**** Logical operator used with non-logical operand
 110:23 ****ERROR**** Logical operator used with non-logical operand
 120:8 ****ERROR**** Non-logical expression used in if condition
-124:11 ****ERROR**** Non-logical expression used in if condition
+124:11 ****ERROR**** Non-logical expression used in while condition
 128:8 ****ERROR**** Non-logical expression used in if condition
 138:5 ****ERROR**** Mismatched type
 139:5 ****ERROR**** Mismatched type
@@ -49,3 +49,16 @@
 180:8 ****ERROR**** Equality operator used with tuple names
 181:8 ****ERROR**** Equality operator used with tuple names
 182:11 ****ERROR**** Equality operator used with tuple names
+185:14 ****ERROR**** Equality operator used with tuple variables
+186:14 ****ERROR**** Equality operator used with tuple variables
+187:14 ****ERROR**** Equality operator used with tuple variables
+188:14 ****ERROR**** Equality operator used with tuple variables
+190:8 ****ERROR**** Equality operator used with tuple variables
+191:8 ****ERROR**** Equality operator used with tuple variables
+192:11 ****ERROR**** Equality operator used with tuple variables
+194:8 ****ERROR**** Equality operator used with tuple variables
+195:8 ****ERROR**** Equality operator used with tuple variables
+196:11 ****ERROR**** Equality operator used with tuple variables
+200:5 ****ERROR**** Assignment to function name
+202:5 ****ERROR**** Assignment to tuple name
+209:5 ****ERROR**** Assignment to tuple variable

@@ -16,3 +16,94 @@ void g<->void>{} [
     g<->void>().
 ]
 
+void iAmVoid<->void>{} [
+    return.
+]
+
+integer retInt<->integer>{} [
+    return 3.
+]
+
+logical retLog<->logical>{} [
+    logical carrot<logical>.
+    return (((True & False) | True) | carrot<logical>).
+]
+
+void test<->void>{} [
+    integer aaa<integer>.
+    logical bbb<logical>.
+    aaa<integer> = retInt<->integer>().
+    bbb<logical> = retLog<->logical>().
+    if bbb<logical> [
+    ]
+    if bbb<logical> [
+    ]
+    else [
+    ]
+    while bbb<logical> [
+    ]
+    if (True == True) [
+    ]
+    if True [
+    ]
+    else [
+    ]
+    while True [
+    ]
+    if False [
+    ]
+    if False [
+    ]
+    else [
+    ]
+    while False [
+    ]
+    if retLog<->logical>() [
+    ]
+    if retLog<->logical>() [
+    ]
+    else [
+    ]
+    while retLog<->logical>() [
+    ]
+]
+
+integer mulPar<integer,logical,integer->integer>{integer one<integer>, logical two<logical>, integer three<integer>} [
+    return (one<integer> + 3).
+]
+
+integer test2<->integer>{} [
+    integer q<integer>.
+    logical w<logical>.
+    logical h<logical>.
+    mulPar<integer,logical,integer->integer>(2, False, 1).
+    mulPar<integer,logical,integer->integer>(q<integer>, w<logical>, q<integer>).
+    q<integer> = (mulPar<integer,logical,integer->integer>(q<integer>, False, retInt<->integer>()) + 4).
+    write << "this is fine".
+    read >> w<logical>.
+    q<integer> = ((((3 * 4) / q<integer>) + 1) - 2).
+    w<logical> = ((True & w<logical>) | False).
+    w<logical> = (h<logical> | True).
+    if (w<logical> == h<logical>) [
+    ]
+    if (w<logical> == h<logical>) [
+    ]
+    else [
+    ]
+    while (w<logical> == h<logical>) [
+    ]
+    if (w<logical> ~= retLog<->logical>()) [
+    ]
+    if (w<logical> ~= True) [
+    ]
+    else [
+    ]
+    while (w<logical> ~= False) [
+    ]
+    if (retInt<->integer>() == 4) [
+    ]
+    q<integer>++.
+    q<integer>--.
+    return mulPar<integer,logical,integer->integer>(q<integer>, True, 3).
+]
+
