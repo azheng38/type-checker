@@ -1,32 +1,31 @@
 !! Write attempt of function name
-integer g{} [ ]
+integer invalidAttempt{} [ ]
 
 integer one{} [
-	write << g.
+    write << invalidAttempt.
 ]
 
 !! Write attempt of tuple name
 tuple Point {
     integer x.
     integer y.
-        integer a.
-        tuple Inside i.
+    integer a.
 }.
 
 integer two{} [
-	write << Point.
+    write << Point.
 ]
 
 !! Write attempt of tuple variable
 integer three{} [
 	tuple Point writeTupVar.
-	write << writeTupVar.	
+    write << writeTupVar.	
 ]
 
 !! Write attempt of void
-void four{} [ ] !! void function
+void four{} [ ]
 
-void five{} [
+void five{} [    
 	write << four().
 ]
 

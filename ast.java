@@ -1247,7 +1247,7 @@ class WriteStmtNode extends StmtNode {
         } else if (type1.isTupleDefType()) { // tuple name
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of tuple name");
 	} else if (myExp instanceof CallExpNode && type1.isVoidType()) { // void fctn ret
-	    ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of void");
+			ErrMsg.fatal(myExp.lineNum(), myExp.charNum(), "Write attempt of void");
         }
     }
 

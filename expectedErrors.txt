@@ -1,0 +1,4 @@
+5:14 ****ERROR**** Write attempt of function name
+16:14 ****ERROR**** Write attempt of tuple name
+22:14 ****ERROR**** Write attempt of tuple variable
+29:14 ****ERROR**** Write attempt of void
