@@ -240,5 +240,10 @@ void main{} [
 
     $ don't give too many or too few error messages here 
     bbb = (aaa + True) & (bbb < True).
+
+    $ some errors involving assignment
+    f = f. !! Assignment to function name
+    q = q. !! Assignment to tuple variable
+    R = R. !! Assignment to tuple name
 ]
 
